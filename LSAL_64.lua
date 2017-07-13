@@ -43,8 +43,6 @@ opt = {
     gamma = 1,		      -- the coefficient for loss minimization term.  Set to zero for non-conditional LS-GAN as the theorem shows this term can be ignored.
    decay_rate = 0.00005,  -- weight decay: 0.00005
    read_type='float',
-   lblchnl=1,
-
     cudnn=1,}
 
 for k,v in pairs(opt) do opt[k] = tonumber(os.getenv(k)) or os.getenv(k) or opt[k] end
@@ -110,18 +108,12 @@ local function lbl2onehot(lbl,outClass) -- lbl is in the format of batchsize,w,h
    if(#lbldim>3)then
       lbl=lbl:view(lbldim[1],lbldim[3],lbldim[4])
    end
-   --print('pass 1')
    local batchSize=lbl:size(1)
-   --print('batchsize',batchSize)
    local w=lbl:size(2)
-   --print('w',w)
    local h=lbl:size(3)
-   --print('h',h)
    local one_hot=torch.zeros(outClass,batchSize*w*h)
-
    local indices=lbl:view(1,-1)
    indices=indices:long()
-   --print('***',indices)
    one_hot=one_hot:scatter(1,indices,1)
    one_hot=one_hot:view(outClass,batchSize,w,h)
    one_hot=one_hot:permute(2,1,3,4)
@@ -346,7 +338,7 @@ local ErrQlist=torch.Tensor(1,1)
  flag=0
 
 for epoch = 1, opt.niter do
-  \
+
 
 -- display plot vars
 
@@ -435,7 +427,7 @@ for epoch = 1, opt.niter do
 
 
 
-      if ((i-1) / opt.batchSize) % 1 == 0 then --gradE: %5f,torch.mean(torch.abs(gradparametersE)),
+      if ((i-1) / opt.batchSize) % 1 == 0 then
 
       if flag==0 then
 
@@ -455,7 +447,7 @@ for epoch = 1, opt.niter do
 
           graddlist=torch.cat(graddlist,torch.FloatTensor(1,1):fill(torch.mean(torch.abs(gradd))),2)
           gradglist=torch.cat(gradglist,torch.FloatTensor(1,1):fill(torch.mean(torch.abs(gradg))),2)
-          gradqlist=torch.cat(gradqlist,torch.FloatTensor(1,1):fill(torch.mean(torch.abs(gradq))),2)-- torch.mean(torch.abs(gradq))
+          gradqlist=torch.cat(gradqlist,torch.FloatTensor(1,1):fill(torch.mean(torch.abs(gradq))),2)
           margZlist=torch.cat(margZlist,torch.FloatTensor(1,1):fill(Z_mar),2)
 
           margXlist=torch.cat(margXlist,torch.FloatTensor(1,1):fill(mar),2)--margXlist
@@ -473,8 +465,8 @@ for epoch = 1, opt.niter do
                  epoch, ((i-1) / opt.batchSize),
                  math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize),
                  tm:time().real, data_tm:time().real,
-                 errG and errG or -1, errD and errD or -1,errQ and errQ or -1, costR, costF, mar,Z_mar,torch.mean(torch.abs(gradd)),torch.mean(torch.abs(gradg)),torch.mean(torch.abs(gradq))))--gradParametersG gradParametersG
-                --torch.mean(torch.abs(gradParametersD)), torch.mean(torch.abs(gradParametersG)),torch.mean(torch.abs(gradParametersQ))
+                 errG and errG or -1, errD and errD or -1,errQ and errQ or -1, costR, costF, mar,Z_mar,torch.mean(torch.abs(gradd)),torch.mean(torch.abs(gradg)),torch.mean(torch.abs(gradq))))
+
 
       local curItInBatch = ((i-1) / opt.batchSize)
       local totalItInBatch = math.floor(math.min(data:size(), opt.ntrain) / opt.batchSize)
@@ -482,12 +474,7 @@ for epoch = 1, opt.niter do
       local plot_vals_x = { epoch + curItInBatch / totalItInBatch }
       local plot_vals_z = { epoch + curItInBatch / totalItInBatch }
             plot_vals_z[#plot_vals_z+1]=Z_mar
-
-           -- for k, v in ipairs(opt.display_plot) do
-           --   if loss[v] ~= nil then
             plot_vals_x[#plot_vals_x + 1] = mar
-           --  end
-          --  end
             -- update display plot
             if opt.display then
               table.insert(plot_data_x, plot_vals_x)
@@ -515,8 +502,7 @@ for epoch = 1, opt.niter do
       end
 
    end
-   --paths.mkdir('Cityscape64_checkpoint')--pascal64_U
-   --('Celeb_LSAL_checkpoint_lowleak2')--
+
    parametersD, gradParametersD = nil, nil -- nil them to avoid spiking memory
    parametersG, gradParametersG = nil, nil
    parametersQ, gradparametersQ = nil, nil
@@ -531,19 +517,3 @@ for epoch = 1, opt.niter do
             epoch, opt.niter, epoch_tm:time().real))
 end
 
--- DATA_ROOT=Pascal_33c_84/Smap_mat dataset=Pascal th /home/newmoon/GAN/dcgan.torch-master/Pascal_64_CondG_CondD_SM.lua
-
--- DATA_ROOT=Pascal_21_84/Smap_mat dataset=Pascal th /home/newmoon/GAN/dcgan.torch-master/Pascal64_U_Wbias_BillnUP.lua
---DATA_ROOT=Pascal_33c_84/Smap_mat dataset=Pascal th /home/newmoon/GAN/dcgan.torch-master/Pascal64_U_Wbias_BillnUP.lua
---DATA_ROOT=Pascal_33c_84/Smap_mat dataset=Pascal th /home/newmoon/GAN/dcgan.torch-master/Pascal64_U_Wbias_HalfBiHalfup_showSM.lua
---DATA_ROOT=CityScape84_34cls/Smap_mat dataset=Pascal th /home/newmoon/GAN/dcgan.torch-master/Pascal64_U_Wbias_HalfBiHalfup_showSM.lua
---DATA_ROOT=/home/newmoon/GAN/dcgan.torch-master/celebA dataset=folder th /home/newmoon/GAN/LSAL/LSAL_dcheck.lua
---DATA_ROOT=/home/newmoon/GAN/dcgan.torch-master/celebA dataset=folder th /home/newmoon/GAN/LSAL/LSAL_lowleak.lua
-
---DATA_ROOT=/home/newmoon/GAN/dcgan.torch-master/celebA dataset=folder th /home/newmoon/GAN/LSAL/mue0-008nu0-009recons.lua
---DATA_ROOT=/home/liheng/celeba_neat/84 dataset=folder th /home/newmoon/GAN/LSAL/neat_celebA_saveimg_LSAL.lua
---DATA_ROOT=/home/liheng/celeba_neat/148 dataset=folder th /home/newmoon/GAN/LSAL/neat_celebA_saveimg_LSAL.lua
---DATA_ROOT=/home/liheng/celeba_neat/84 dataset=folder th /home/newmoon/GAN/LSAL/neat_celebA_save_everything_LSAL.lua
-----DATA_ROOt=/home/gqi/GAN/LSGAN/lsun/train dataset=lsun th /home/newmoon/GAN/LSAL/LSUN_mue0_08nu0_1.lua
---DATA_ROOT=/home/newmoon/GAN/dcgan.torch-master/celebA dataset=folder th /home/newmoon/GAN/LSAL/celebA_saveAll_LSAL_Wdecay.lua
---DATA_ROOT=/home/liheng/celeba_neat/84 dataset=folder th /home/newmoon/GAN/LSAL/celebA_saveAll_LSAL_Wdecay.lua
