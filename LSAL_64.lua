@@ -38,7 +38,7 @@ opt = {
    gpu = 1,                -- gpu = -1 is CPU mode. gpu=X is GPU mode on GPU X
    name='experiment64',--**********'neat_celebA_saveAll_decay_leak64',--'celebA_saveAll_Wdecay',--'neat_celebA_SaveAll_84crop_mue0-008nu0-099',--'neat_celebA_148_mue0-008nu0-009'
    noise = 'uniform',       -- uniform / normal
-   mue=0.008,--*****0.008,             -- best so far mue=0.008 nu=0.009
+   mue=0.008,--*****0.008,             -- best so far mue=0.007 nu=0.009
     nu=0.009,--***0,--0.009,
     gamma = 1,		      -- the coefficient for loss minimization term.  Set to zero for non-conditional LS-GAN as the theorem shows this term can be ignored.
    decay_rate = 0.00005,  -- weight decay: 0.00005
